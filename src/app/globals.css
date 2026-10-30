@@ -1,0 +1,116 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --background: #050b07;
+    --foreground: #ffffff;
+    --card: #0a140f;
+    --card-foreground: #ffffff;
+    --muted: #a1a1aa;
+    --border: rgba(194, 157, 89, 0.25);
+    --gold: #c29d59;
+    --forest: #1b3b2b;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 5.5rem;
+    color-scheme: dark;
+    background-color: #050b07;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    @media (prefers-reduced-motion: reduce) {
+      scroll-behavior: auto;
+    }
+  }
+
+  body {
+    background-color: #050b07;
+    color: #ffffff;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    overflow-x: clip;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overscroll-behavior-y: none;
+  }
+
+  /* Balanced headings without visible box borders */
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  /* Prevent orphaned words in multi-line body paragraphs */
+  p,
+  blockquote,
+  li {
+    text-wrap: pretty;
+    overflow-wrap: break-word;
+  }
+
+  /* Mobile touch ergonomics: zero 300ms tap delay & clean tap highlight */
+  a,
+  button,
+  [role="button"],
+  input,
+  select,
+  textarea {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  /* Accessible keyboard focus indicator (WCAG 2.4.7 & 1.4.11 >= 3:1 contrast on dark) */
+  :where(a:any-link, button, [role="button"]):focus-visible {
+    outline: 2px solid #c29d59;
+    outline-offset: 3px;
+  }
+}
+
+/* Hide scrollbars on horizontal touch carousels while preserving scrollability */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Custom dark luxury scrollbar for desktop main viewport */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #050b07;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1b3b2b;
+  border-radius: 4px;
+  border: 1px solid rgba(194, 157, 89, 0.25);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #c29d59;
+}
+
+/* Subtle luxury keyframes with reduced-motion respect */
+@keyframes soft-float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.animate-soft-float {
+  animation: soft-float 6s ease-in-out infinite;
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}

@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+
+Sitemap: https://sanaviewhostel.com.br/sitemap.xml
+Sitemap: https://www.sanaviewhostel.com.br/sitemap.xml

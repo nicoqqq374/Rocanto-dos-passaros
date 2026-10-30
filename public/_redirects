@@ -1,0 +1,13 @@
+# ==============================================================================
+# Cloudflare Pages & Workers Redirects
+# Pousada Recanto dos Pássaros (Sana, Macaé RJ)
+# ==============================================================================
+
+# Redirecionamento de URLs e âncoras para preservar navegação e SEO
+/index.php/chales      /#chales         301
+/chales                /#chales         301
+/quartos               /#chales         301
+/acomodacoes           /#chales         301
+/reservas              /#reservas       301
+/contato               /#reservas       301
+/index.php             /                301
