@@ -130,7 +130,7 @@ function RoomCard({ room, onSelect, onBook }: RoomCardProps) {
 }
 
 export function RoomsSection() {
-  const { openBooking, rooms } = useBooking();
+  const { openBooking, rooms, setFilters } = useBooking();
   const [selectedRoomForModalId, setSelectedRoomForModalId] = useState<string | null>(null);
   const selectedRoomForModal = rooms.find((room) => room.id === selectedRoomForModalId) ?? null;
   const carouselRef = useRef<HTMLDivElement>(null);
@@ -199,7 +199,15 @@ export function RoomsSection() {
               <RoomCard
                 room={room}
                 onSelect={(r) => setSelectedRoomForModalId(r.id)}
-                onBook={(id, name) => openBooking(id, name)}
+                onBook={(id, name) => {
+                  setFilters({ roomId: id, roomName: name });
+                  const el = document.getElementById("reservas");
+                  if (el) {
+                    el.scrollIntoView({ behavior: "smooth" });
+                  } else {
+                    openBooking(id, name);
+                  }
+                }}
               />
             </div>
           ))}

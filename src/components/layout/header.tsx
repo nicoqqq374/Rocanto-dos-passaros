@@ -32,12 +32,12 @@ export function Header() {
   }, [mobileMenuOpen]);
 
   const navLinks = [
-    { href: "#chales", label: "Chalés & Suítes" },
-    { href: "#rio", label: "O Rio & Piscinas" },
-    { href: "#lazer", label: "Lazer & Day Use" },
-    { href: "#cafe", label: "Café Colonial" },
-    { href: "#pet-friendly", label: "Pet Friendly" },
-    { href: "#avaliacoes", label: "Avaliações 9.1" },
+    { href: "#chales", label: "Chalés & Suítes", alwaysShow: true },
+    { href: "#rio", label: "O Rio & Piscinas", alwaysShow: true },
+    { href: "#lazer", label: "Lazer & Day Use", alwaysShow: true },
+    { href: "#cafe", label: "Café Colonial", alwaysShow: false },
+    { href: "#pet-friendly", label: "Pet Friendly", alwaysShow: false },
+    { href: "#avaliacoes", label: "Avaliações 9.1", alwaysShow: true },
   ];
 
   const WHATSAPP_URL =
@@ -45,35 +45,35 @@ export function Header() {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-[#050B07]/80 backdrop-blur-2xl border-b border-[#C29D59]/25 ${
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-[#050B07]/85 backdrop-blur-2xl border-b border-[#C29D59]/25 ${
         isScrolled
-          ? "py-2 sm:py-2.5 shadow-[0_12px_40px_rgba(0,0,0,0.4)]"
-          : "py-2.5 sm:py-3.5 shadow-[0_4px_20px_rgba(0,0,0,0.2)]"
+          ? "py-2 shadow-[0_12px_40px_rgba(0,0,0,0.4)]"
+          : "py-2.5 sm:py-3 shadow-[0_4px_20px_rgba(0,0,0,0.2)]"
       }`}
     >
-      <div className="max-w-[1440px] w-full mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-3 sm:gap-4">
+      <div className="max-w-[1440px] w-full mx-auto px-3 sm:px-5 lg:px-6 xl:px-8 flex items-center justify-between gap-2 sm:gap-3 xl:gap-4">
         
         {/* Brand Logo & Wordmark */}
         <Link
           href="#"
-          className="flex items-center gap-2.5 sm:gap-3 group shrink-0 select-none rounded-xl py-0.5"
+          className="flex items-center gap-2 sm:gap-2.5 group shrink-0 select-none rounded-xl py-0.5"
         >
-          <div className="relative w-10 h-10 sm:w-12 sm:h-12 shrink-0 aspect-square overflow-hidden rounded-full shadow-xs group-hover:scale-105 transition-transform duration-300">
+          <div className="relative w-9 h-9 sm:w-11 sm:h-11 shrink-0 aspect-square overflow-hidden rounded-full shadow-xs group-hover:scale-105 transition-transform duration-300">
             <Image
               src="/logo.png"
               alt="Logo Pousada Recanto dos Pássaros Sana Chalés"
               fill
               className="object-contain"
-              sizes="48px"
+              sizes="44px"
               priority
             />
           </div>
 
           <div className="flex flex-col text-left">
-            <span className="font-serif text-[15px] sm:text-lg xl:text-xl font-bold tracking-tight text-white group-hover:text-[#E6C994] transition-colors whitespace-nowrap leading-tight">
+            <span className="font-serif text-[14px] sm:text-base xl:text-lg 2xl:text-xl font-bold tracking-tight text-white group-hover:text-[#E6C994] transition-colors whitespace-nowrap leading-tight">
               Recanto dos Pássaros
             </span>
-            <span className="text-[9px] sm:text-[10px] tracking-widest uppercase font-bold text-[#E6C994] whitespace-nowrap flex items-center gap-1.5 mt-0.5">
+            <span className="text-[8.5px] sm:text-[9.5px] tracking-widest uppercase font-bold text-[#E6C994] whitespace-nowrap flex items-center gap-1.5 mt-0.5">
               <span>Sana Chalés</span>
               <span className="opacity-40">•</span>
               <span>Sana · Macaé RJ</span>
@@ -81,44 +81,54 @@ export function Header() {
           </div>
         </Link>
 
-        {/* Desktop Navigation Links */}
+        {/* Desktop Navigation Links (Responsive layout that never pushes buttons off) */}
         <nav
           aria-label="Principal"
-          className="hidden lg:flex items-center gap-1 xl:gap-2 text-[13px] xl:text-sm font-medium text-zinc-200"
+          className="hidden lg:flex items-center gap-0.5 xl:gap-1.5 2xl:gap-2 text-xs xl:text-[13px] 2xl:text-sm font-medium text-zinc-200 shrink min-w-0"
         >
           {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className="transition-all duration-200 relative min-h-[40px] px-3 py-2 rounded-full flex items-center text-zinc-300 hover:text-white hover:bg-white/10 active:scale-95 whitespace-nowrap"
+              className={`transition-all duration-200 relative min-h-[38px] px-2.5 xl:px-3 py-1.5 rounded-full flex items-center text-zinc-300 hover:text-white hover:bg-white/10 active:scale-95 whitespace-nowrap ${
+                link.alwaysShow ? "flex" : "hidden xl:flex"
+              }`}
             >
               {link.label}
             </Link>
           ))}
         </nav>
 
-        {/* Desktop Header Actions */}
-        <div className="hidden sm:flex items-center gap-2.5 shrink-0">
+        {/* Desktop Header Actions (Guaranteed 100% visible on all desktop viewports) */}
+        <div className="hidden sm:flex items-center gap-2 xl:gap-2.5 shrink-0">
           {/* WhatsApp Direct — Luxury Editorial Palette */}
           <a
             href={WHATSAPP_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 min-h-[42px] px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all hover:scale-[1.02] active:scale-95 bg-white/10 hover:bg-[#1B3B2B] text-white border border-[#C29D59]/35 hover:border-[#C29D59]/70 shadow-xs cursor-pointer group"
+            className="flex items-center gap-1.5 xl:gap-2 min-h-[38px] xl:min-h-[42px] px-3 xl:px-4 py-1.5 xl:py-2 rounded-full text-xs xl:text-sm font-semibold transition-all hover:scale-[1.02] active:scale-95 bg-white/10 hover:bg-[#1B3B2B] text-white border border-[#C29D59]/35 hover:border-[#C29D59]/70 shadow-xs cursor-pointer group"
             aria-label="Falar no WhatsApp"
           >
-            <WhatsAppIcon className="w-4 h-4 text-[#E6C994] group-hover:scale-110 transition-transform" />
+            <WhatsAppIcon className="w-3.5 h-3.5 xl:w-4 xl:h-4 text-[#E6C994] group-hover:scale-110 transition-transform" />
             <span>WhatsApp</span>
           </a>
 
           {/* Primary Booking Button */}
           <button
             type="button"
-            onClick={() => openBooking()}
-            className="flex items-center gap-2 min-h-[42px] px-5 py-2 rounded-full bg-[#C29D59] hover:bg-[#D4AF67] text-[#050B07] font-bold text-xs sm:text-sm shadow-[0_0_20px_rgba(194,157,89,0.35)] hover:shadow-[0_0_30px_rgba(194,157,89,0.55)] transition-all hover:scale-[1.02] cursor-pointer active:scale-95"
+            onClick={() => {
+              const el = document.getElementById("reservas");
+              if (el) {
+                el.scrollIntoView({ behavior: "smooth" });
+              } else {
+                openBooking();
+              }
+            }}
+            className="flex items-center gap-1.5 xl:gap-2 min-h-[38px] xl:min-h-[42px] px-4 xl:px-5 py-1.5 xl:py-2 rounded-full bg-[#C29D59] hover:bg-[#D4AF67] text-[#050B07] font-bold text-xs xl:text-sm shadow-[0_0_20px_rgba(194,157,89,0.35)] hover:shadow-[0_0_30px_rgba(194,157,89,0.55)] transition-all hover:scale-[1.02] cursor-pointer active:scale-95 whitespace-nowrap"
           >
-            <Calendar className="w-4 h-4 text-[#050B07]" />
-            <span>Reservar Chalé</span>
+            <Calendar className="w-3.5 h-3.5 xl:w-4 xl:h-4 text-[#050B07]" />
+            <span className="hidden xl:inline">Reservar Chalé</span>
+            <span className="xl:hidden">Reservar</span>
           </button>
         </div>
 

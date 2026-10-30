@@ -2,12 +2,21 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
-import { Calendar, Home, Users, Search, ChevronDown, Check } from "lucide-react";
+import { Calendar, Home, Users, Search, ChevronDown, Check, Sparkles } from "lucide-react";
 import { useBooking } from "@/context/booking-context";
 import { DateRangeModal, formatReadableDate } from "./date-range-modal";
 
+const GUEST_OPTIONS = [
+  { value: "1", label: "1 pessoa", desc: "Viajante solo" },
+  { value: "2", label: "2 pessoas", desc: "Casal romântico" },
+  { value: "3", label: "3 pessoas", desc: "Casal + 1" },
+  { value: "4", label: "4 pessoas", desc: "Família / 4 amigos" },
+  { value: "5", label: "5 pessoas", desc: "Grupo até 5" },
+  { value: "6+", label: "6+ pessoas", desc: "Grupos e Famílias" },
+];
+
 export function QuickBookingBar() {
-  const { openBooking, rooms } = useBooking();
+  const { openBooking, rooms, setFilters } = useBooking();
 
   // Dates initialization
   const tomorrow = new Date();
@@ -23,6 +32,16 @@ export function QuickBookingBar() {
   const [selectedRoomId, setSelectedRoomId] = useState<string>("all");
   const [guests, setGuests] = useState<string>("2");
 
+  // Keep context in sync on mount
+  useEffect(() => {
+    setFilters({
+      checkIn: defaultCheckIn,
+      checkOut: defaultCheckOut,
+      guests: "2",
+      roomId: null,
+    });
+  }, [setFilters, defaultCheckIn, defaultCheckOut]);
+
   // Date Range Modal state
   const [isDateModalOpen, setIsDateModalOpen] = useState(false);
   const [dateModalTarget, setDateModalTarget] = useState<"checkIn" | "checkOut">("checkIn");
@@ -35,6 +54,7 @@ export function QuickBookingBar() {
   const handleSelectDates = (newIn: string, newOut: string) => {
     setCheckIn(newIn);
     setCheckOut(newOut);
+    setFilters({ checkIn: newIn, checkOut: newOut });
   };
 
   // Dropdown open states
@@ -66,11 +86,41 @@ export function QuickBookingBar() {
 
   const selectedRoom = rooms.find((r) => r.id === selectedRoomId);
 
+  const handleSelectRoom = (roomId: string) => {
+    setSelectedRoomId(roomId);
+    setIsRoomDropdownOpen(false);
+    if (roomId === "all") {
+      setFilters({ roomId: null, roomName: null });
+    } else {
+      const room = rooms.find((r) => r.id === roomId);
+      setFilters({ roomId, roomName: room?.name });
+    }
+  };
+
+  const handleSelectGuests = (count: string) => {
+    setGuests(count);
+    setIsGuestsDropdownOpen(false);
+    setFilters({ guests: count });
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const roomId = selectedRoom?.id;
     const roomName = selectedRoom ? selectedRoom.name : undefined;
-    openBooking(roomId, roomName, checkIn, checkOut, guests);
+    setFilters({ roomId, roomName, checkIn, checkOut, guests });
+
+    // Smooth scroll directly to the embedded SaaS booking engine
+    const el = document.getElementById("reservas");
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth" });
+    } else {
+      openBooking(roomId, roomName, checkIn, checkOut, guests);
+    }
+  };
+
+  const getGuestsDisplayLabel = () => {
+    const match = GUEST_OPTIONS.find((g) => g.value === guests);
+    return match ? match.label : `${guests} pessoas`;
   };
 
   return (
@@ -114,7 +164,7 @@ export function QuickBookingBar() {
             </div>
           </button>
 
-          {/* 3. ACOMODAÇÃO (Custom Visual Dropdown with Room Thumbnails) */}
+          {/* 3. ACOMODAÇÃO (Custom Visual Dropdown with Room Thumbnails & Live SaaS Sync) */}
           <div ref={roomDropdownRef} className="relative col-span-2 sm:col-span-1">
             <button
               type="button"
@@ -144,28 +194,39 @@ export function QuickBookingBar() {
               />
             </button>
 
-            {/* Dropdown Menu with Photo Thumbnails */}
+            {/* Dropdown Menu with Photo Thumbnails — Unclipped & High Contrast */}
             {isRoomDropdownOpen && (
               <div
                 role="listbox"
                 aria-label="Selecionar acomodação"
-                className="absolute top-full left-0 right-0 sm:right-auto mt-2 w-full sm:w-80 rounded-2xl bg-[#0D1812] border border-[#C29D59]/40 p-2 shadow-[0_25px_55px_rgba(0,0,0,0.6)] z-50 max-h-80 overflow-y-auto overscroll-contain animate-fade-in text-white"
+                className="absolute top-full left-0 right-0 sm:right-auto mt-2 w-full sm:w-[360px] rounded-2xl bg-[#0A140F] border border-[#C29D59]/50 p-2 shadow-[0_25px_60px_rgba(0,0,0,0.85)] z-50 max-h-[380px] overflow-y-auto overscroll-contain animate-fade-in text-white scrollbar-thin"
               >
+                {/* Header info */}
+                <div className="px-2.5 py-1.5 mb-1 border-b border-white/10 flex items-center justify-between text-[11px] text-zinc-400">
+                  <span className="uppercase tracking-wider font-semibold text-[#E6C994]">Escolha o Chalé</span>
+                  <span>{rooms.length} disponíveis</span>
+                </div>
+
                 <button
                   type="button"
                   role="option"
                   aria-selected={selectedRoomId === "all"}
-                  onClick={() => {
-                    setSelectedRoomId("all");
-                    setIsRoomDropdownOpen(false);
-                  }}
-                  className={`w-full min-h-[46px] flex items-center justify-between p-2.5 rounded-xl text-left text-xs font-semibold transition-all mb-1 cursor-pointer active:scale-[0.99] ${
+                  onClick={() => handleSelectRoom("all")}
+                  className={`w-full min-h-[48px] flex items-center justify-between p-2.5 rounded-xl text-left text-xs font-semibold transition-all mb-1.5 cursor-pointer active:scale-[0.99] ${
                     selectedRoomId === "all"
-                      ? "bg-[#1B3B2B] text-white font-bold border border-[#C29D59]/40 shadow-xs"
+                      ? "bg-[#1B3B2B] text-white font-bold border border-[#C29D59]/50 shadow-xs"
                       : "text-zinc-300 hover:bg-white/10 hover:text-white"
                   }`}
                 >
-                  <span>Todas as Acomodações</span>
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center text-[#E6C994]">
+                      <Sparkles className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold text-white">Todas as Acomodações</div>
+                      <div className="text-[10px] text-zinc-400 font-normal">Exibir catálogo completo no SaaS</div>
+                    </div>
+                  </div>
                   {selectedRoomId === "all" && <Check className="w-4 h-4 text-[#C29D59]" />}
                 </button>
 
@@ -175,24 +236,21 @@ export function QuickBookingBar() {
                     type="button"
                     role="option"
                     aria-selected={selectedRoomId === room.id}
-                    onClick={() => {
-                      setSelectedRoomId(room.id);
-                      setIsRoomDropdownOpen(false);
-                    }}
-                    className={`w-full min-h-[54px] flex items-center gap-3 p-2 rounded-xl text-left transition-all mb-1 cursor-pointer active:scale-[0.99] ${
+                    onClick={() => handleSelectRoom(room.id)}
+                    className={`w-full min-h-[58px] flex items-center gap-3 p-2 rounded-xl text-left transition-all mb-1.5 cursor-pointer active:scale-[0.99] ${
                       selectedRoomId === room.id
-                        ? "bg-[#1B3B2B] text-white border border-[#C29D59]/40 shadow-xs"
+                        ? "bg-[#1B3B2B] text-white border border-[#C29D59]/50 shadow-xs"
                         : "text-zinc-300 hover:bg-white/10 hover:text-white"
                     }`}
                   >
                     {/* Thumbnail */}
-                    <div className="relative w-12 h-10 rounded-lg overflow-hidden shrink-0 bg-[#07100A] border border-white/10">
+                    <div className="relative w-14 h-11 rounded-lg overflow-hidden shrink-0 bg-[#07100A] border border-white/15">
                       <Image
-                        src={room.images[0]}
+                        src={room.images[0] || "/recanto/hero-pousada-real.jpg"}
                         alt={room.name}
                         fill
                         className="object-cover"
-                        sizes="48px"
+                        sizes="56px"
                       />
                     </div>
 
@@ -203,12 +261,12 @@ export function QuickBookingBar() {
                           {room.name}
                         </span>
                         {selectedRoomId === room.id && (
-                          <Check className="w-3.5 h-3.5 text-[#C29D59] shrink-0" />
+                          <Check className="w-4 h-4 text-[#C29D59] shrink-0" />
                         )}
                       </div>
                       <div className="flex items-center gap-1.5 text-[11px] text-zinc-400 mt-0.5">
                         <span className="text-[#E6C994] font-semibold">
-                          R$ {room.price}/n
+                          R$ {room.price}/noite
                         </span>
                         <span>•</span>
                         <span>{room.capacity} {room.capacity > 1 ? "hóspedes" : "hóspede"}</span>
@@ -220,7 +278,7 @@ export function QuickBookingBar() {
             )}
           </div>
 
-          {/* 4. HÓSPEDES */}
+          {/* 4. HÓSPEDES (Extended Options up to 5 and 6+ guests) */}
           <div ref={guestsDropdownRef} className="relative col-span-2 sm:col-span-1">
             <button
               type="button"
@@ -239,7 +297,7 @@ export function QuickBookingBar() {
                     Hóspedes
                   </span>
                   <span className="text-xs font-semibold text-white truncate">
-                    {guests} {parseInt(guests) > 1 ? "pessoas" : "pessoa"}
+                    {getGuestsDisplayLabel()}
                   </span>
                 </div>
               </div>
@@ -250,31 +308,35 @@ export function QuickBookingBar() {
               />
             </button>
 
-            {/* Guests Dropdown Menu */}
+            {/* Guests Dropdown Menu — Complete 1 to 6+ options */}
             {isGuestsDropdownOpen && (
               <div
                 role="listbox"
                 aria-label="Selecionar quantidade de hóspedes"
-                className="absolute top-full left-0 right-0 sm:right-auto mt-2 w-full sm:w-48 rounded-2xl bg-[#0D1812] border border-[#C29D59]/40 p-2 shadow-[0_25px_55px_rgba(0,0,0,0.6)] z-50 animate-fade-in text-white"
+                className="absolute top-full left-0 right-0 sm:right-auto mt-2 w-full sm:w-[260px] rounded-2xl bg-[#0A140F] border border-[#C29D59]/50 p-2 shadow-[0_25px_60px_rgba(0,0,0,0.85)] z-50 animate-fade-in text-white"
               >
-                {["1", "2", "3", "4", "5+"].map((count) => (
+                <div className="px-2.5 py-1.5 mb-1 border-b border-white/10 flex items-center justify-between text-[11px] text-zinc-400">
+                  <span className="uppercase tracking-wider font-semibold text-[#E6C994]">Quantidade de Pessoas</span>
+                </div>
+
+                {GUEST_OPTIONS.map((opt) => (
                   <button
-                    key={count}
+                    key={opt.value}
                     type="button"
                     role="option"
-                    aria-selected={guests === count}
-                    onClick={() => {
-                      setGuests(count);
-                      setIsGuestsDropdownOpen(false);
-                    }}
-                    className={`w-full min-h-[44px] flex items-center justify-between px-3 py-2 rounded-xl text-left text-xs font-semibold transition-all mb-0.5 cursor-pointer active:scale-[0.99] ${
-                      guests === count
-                        ? "bg-[#1B3B2B] text-white border border-[#C29D59]/40 font-bold"
+                    aria-selected={guests === opt.value}
+                    onClick={() => handleSelectGuests(opt.value)}
+                    className={`w-full min-h-[46px] flex items-center justify-between px-3 py-2 rounded-xl text-left transition-all mb-1 cursor-pointer active:scale-[0.99] ${
+                      guests === opt.value
+                        ? "bg-[#1B3B2B] text-white border border-[#C29D59]/50 font-bold shadow-xs"
                         : "text-zinc-300 hover:bg-white/10 hover:text-white"
                     }`}
                   >
-                    <span>{count} {count === "1" ? "pessoa" : "pessoas"}</span>
-                    {guests === count && <Check className="w-3.5 h-3.5 text-[#C29D59]" />}
+                    <div>
+                      <div className="text-xs font-semibold text-white">{opt.label}</div>
+                      <div className="text-[10px] text-zinc-400 font-normal">{opt.desc}</div>
+                    </div>
+                    {guests === opt.value && <Check className="w-4 h-4 text-[#C29D59]" />}
                   </button>
                 ))}
               </div>

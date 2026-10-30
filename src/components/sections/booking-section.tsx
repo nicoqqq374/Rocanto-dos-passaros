@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
   ExternalLink,
   RotateCcw,
@@ -10,6 +10,7 @@ import {
   ShieldCheck,
   Zap,
   Sparkles,
+  Filter,
 } from "lucide-react";
 import { WhatsAppIcon } from "@/components/ui/whatsapp-icon";
 import { BOOKING_EMBED_URL, TENANT_SLUG } from "@/lib/saas-rooms";
@@ -17,7 +18,15 @@ import { useBooking } from "@/context/booking-context";
 import { BookingSkeleton } from "@/components/ui/booking-skeleton";
 
 export function BookingSection() {
-  const { openBooking } = useBooking();
+  const {
+    openBooking,
+    checkInDate,
+    checkOutDate,
+    guestsCount,
+    selectedRoomId,
+    selectedRoomName,
+  } = useBooking();
+
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [reloadKey, setReloadKey] = useState<number>(0);
 
@@ -26,7 +35,42 @@ export function BookingSection() {
     setReloadKey((k) => k + 1);
   };
 
-  const embedUrl = `${BOOKING_EMBED_URL}?theme=dark`;
+  const embedUrl = useMemo(() => {
+    const params = new URLSearchParams();
+    params.set("theme", "dark");
+
+    if (checkInDate && checkOutDate) {
+      params.set("checkin", checkInDate);
+      params.set("checkout", checkOutDate);
+      params.set("check_in", checkInDate);
+      params.set("check_out", checkOutDate);
+      params.set("entrada", checkInDate);
+      params.set("saida", checkOutDate);
+      params.set("from", checkInDate);
+      params.set("to", checkOutDate);
+      params.set("startDate", checkInDate);
+      params.set("endDate", checkOutDate);
+      params.set("start", checkInDate);
+      params.set("end", checkOutDate);
+    }
+
+    if (guestsCount) {
+      const gClean = guestsCount.replace(/\D/g, "") || "2";
+      params.set("hospedes", gClean);
+      params.set("guests", gClean);
+      params.set("adults", gClean);
+    }
+
+    if (selectedRoomId && selectedRoomId !== "all") {
+      params.set("unitId", selectedRoomId);
+      params.set("quarto", selectedRoomId);
+      params.set("roomId", selectedRoomId);
+      params.set("step", "2");
+      params.set("etapa", "2");
+    }
+
+    return `${BOOKING_EMBED_URL}?${params.toString()}`;
+  }, [checkInDate, checkOutDate, guestsCount, selectedRoomId]);
 
   const WHATSAPP_URL =
     "https://wa.me/5522981054265?text=Ol%C3%A1%2C%20gostaria%20de%20ajuda%20para%20minha%20reserva%20na%20Pousada%20Recanto%20dos%20P%C3%A1ssaros.";
@@ -93,14 +137,14 @@ export function BookingSection() {
               </div>
             </div>
 
-            {/* Center: Live Status Indicator */}
+            {/* Center: Live Status Indicator or Synchronized Filter */}
             <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#1B3B2B] border border-[#C29D59]/35 text-[#E6C994] text-xs font-semibold">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#C29D59] opacity-75" />
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-[#C29D59]" />
               </span>
-              <span className="truncate max-w-[150px] sm:max-w-none">
-                Calendário & Reservas ao Vivo
+              <span className="truncate max-w-[180px] sm:max-w-none">
+                {selectedRoomName ? `Sincronizado: ${selectedRoomName}` : "Calendário & Reservas ao Vivo"}
               </span>
             </div>
 
@@ -139,7 +183,7 @@ export function BookingSection() {
             )}
 
             <iframe
-              key={`booking-embed-${reloadKey}`}
+              key={`booking-embed-${reloadKey}-${embedUrl}`}
               src={embedUrl}
               className={`w-full h-full border-none transition-opacity duration-500 ${
                 isLoading ? "opacity-0" : "opacity-100"

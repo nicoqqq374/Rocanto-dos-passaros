@@ -8,10 +8,12 @@ import { motion } from "framer-motion";
 
 export function Hero() {
   return (
-    <section className="relative min-h-[92dvh] flex flex-col justify-between pt-24 sm:pt-32 lg:pt-36 pb-14 sm:pb-24 px-4 sm:px-6 lg:px-8 bg-transparent overflow-hidden">
-      {/* Background Subtle Gradient & Light (zero-shader radial gradients for 60fps scroll fluidity) */}
-      <div className="absolute top-0 right-0 w-[850px] h-[850px] bg-[radial-gradient(circle,rgba(194,157,89,0.15)_0%,transparent_70%)] pointer-events-none -mr-48 -mt-32" aria-hidden="true" />
-      <div className="absolute bottom-0 left-0 w-[750px] h-[750px] bg-[radial-gradient(circle,rgba(27,59,43,0.28)_0%,transparent_70%)] pointer-events-none -ml-48 -mb-32" aria-hidden="true" />
+    <section className="relative min-h-[92dvh] flex flex-col justify-between pt-24 sm:pt-32 lg:pt-36 pb-20 sm:pb-28 lg:pb-32 px-4 sm:px-6 lg:px-8 bg-transparent overflow-visible">
+      {/* Background Subtle Gradient & Light safely confined to avoid horizontal scroll without clipping dropdowns */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+        <div className="absolute top-0 right-0 w-[850px] h-[850px] bg-[radial-gradient(circle,rgba(194,157,89,0.15)_0%,transparent_70%)] -mr-48 -mt-32" />
+        <div className="absolute bottom-0 left-0 w-[750px] h-[750px] bg-[radial-gradient(circle,rgba(27,59,43,0.28)_0%,transparent_70%)] -ml-48 -mb-32" />
+      </div>
 
       <div className="max-w-7xl mx-auto w-full relative z-10 my-auto">
         {/* Main Grid: Editorial Typography Left + Cinematic Photography Right */}

@@ -24,6 +24,13 @@ interface BookingContextType {
     guests?: string
   ) => void;
   closeBooking: () => void;
+  setFilters: (filters: {
+    roomId?: string | null;
+    roomName?: string | null;
+    checkIn?: string | null;
+    checkOut?: string | null;
+    guests?: string | null;
+  }) => void;
 }
 
 const BookingContext = createContext<BookingContextType | undefined>(undefined);
@@ -108,6 +115,28 @@ export function BookingProvider({ children }: { children: React.ReactNode }) {
     setIsOpen(false);
   };
 
+  const setFilters = useCallback((filters: {
+    roomId?: string | null;
+    roomName?: string | null;
+    checkIn?: string | null;
+    checkOut?: string | null;
+    guests?: string | null;
+  }) => {
+    if (filters.roomId !== undefined) {
+      if (filters.roomId === "all" || filters.roomId === null) {
+        setSelectedRoomId(null);
+        setSelectedRoomName(null);
+      } else {
+        const room = rooms.find((item) => item.id === filters.roomId);
+        setSelectedRoomId(room?.id || filters.roomId);
+        setSelectedRoomName(filters.roomName || room?.name || null);
+      }
+    }
+    if (filters.checkIn !== undefined) setCheckInDate(filters.checkIn);
+    if (filters.checkOut !== undefined) setCheckOutDate(filters.checkOut);
+    if (filters.guests !== undefined) setGuestsCount(filters.guests);
+  }, [rooms]);
+
   return (
     <BookingContext.Provider
       value={{
@@ -123,6 +152,7 @@ export function BookingProvider({ children }: { children: React.ReactNode }) {
         guestsCount,
         openBooking,
         closeBooking,
+        setFilters,
       }}
     >
       {children}

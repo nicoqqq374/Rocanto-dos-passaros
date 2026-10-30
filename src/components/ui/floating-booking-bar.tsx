@@ -10,6 +10,15 @@ export function FloatingBookingBar() {
   const prices = rooms.map((room) => room.price).filter((price) => price > 0);
   const minimumPrice = prices.length ? Math.min(...prices) : 300;
 
+  const handleBookingAction = () => {
+    const el = document.getElementById("reservas");
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth" });
+    } else {
+      openBooking();
+    }
+  };
+
   return (
     <div
       role="region"
@@ -21,7 +30,7 @@ export function FloatingBookingBar() {
         {/* Left Side: Live Badge + Price Info (Clickable >= 44px height) */}
         <button
           type="button"
-          onClick={() => openBooking()}
+          onClick={handleBookingAction}
           className="min-h-[44px] flex flex-col justify-center text-left shrink-0 leading-tight cursor-pointer group/price select-none bg-transparent border-0 p-0 active:scale-[0.98] transition-transform"
           title="Clique para ver datas disponíveis"
         >
@@ -60,7 +69,7 @@ export function FloatingBookingBar() {
           {/* Reservar Agora Primary Button */}
           <button
             type="button"
-            onClick={() => openBooking()}
+            onClick={handleBookingAction}
             className="min-h-[44px] flex items-center justify-center gap-1.5 px-4.5 sm:px-5.5 py-2.5 rounded-full text-xs sm:text-sm font-bold text-[#14221A] bg-[#C29D59] hover:bg-[#D4AF67] active:bg-[#B8924E] active:scale-95 shadow-[0_0_20px_rgba(194,157,89,0.35)] hover:shadow-[0_0_30px_rgba(194,157,89,0.55)] transition-all cursor-pointer whitespace-nowrap"
           >
             <Calendar className="w-4 h-4 shrink-0 text-[#14221A]" />
